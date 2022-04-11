@@ -5,9 +5,18 @@ import React, { useEffect, useState } from "react";
 import "./Chats.css";
 import { db } from "./firebase";
 import Chat from "./Chat";
+import { useDispatch, useSelector } from "react-redux";
+import { selectuser } from "./features/appSlice";
+import { auth } from "./firebase";
+import RadioButtonUncheckedIcon from "@material-ui/icons/RadioButtonUnchecked";
+import { useHistory } from "react-router-dom";
+import { resetCameraImage } from "./features/cameraSlice";
 
 function Chats() {
 	const [posts, setPosts] = useState([]);
+	const user = useSelector(selectuser);
+	const dispatch = useDispatch();
+	const history = useHistory();
 
 	useEffect(() => {
 		db.collection("posts")
@@ -22,12 +31,21 @@ function Chats() {
 			);
 	}, []);
 
+	const takeSnap = () => {
+		dispatch(resetCameraImage());
+		history.push("/");
+	};
+
 	return (
 		<div className="chats">
 			<div className="chats_header">
-				<Avatar className="chats_avatar" />
+				<Avatar
+					src={user.profilePic}
+					onClick={() => auth.Auth.signOut()}
+					className="chats_avatar"
+				/>
 				<div className="chats_search">
-					<SearchIcon />
+					<SearchIcon className="chats_searchIcon" />
 					<input placeholder="Friends" type="text" />
 				</div>
 
@@ -51,6 +69,11 @@ function Chats() {
 					)
 				)}
 			</div>
+			<RadioButtonUncheckedIcon
+				className="chats_takePicIcon"
+				onClick={takeSnap}
+				fontSize="large"
+			/>
 		</div>
 	);
 }
